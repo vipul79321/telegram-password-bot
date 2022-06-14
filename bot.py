@@ -18,15 +18,15 @@ logger = logging.getLogger(__name__)
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi, I am a bot to encrypt/decrypt password.')
+    update.message.reply_text('Hi, I am a bot to encrypt/decrypt password. Use /help for more information')
 
 def help(update, context):
     """Send a message when the command /help is issued."""
     reply = """Following are the list of messages that you can use-
-    1. setkey | setkey key - Sets encryption/decryption key
+    1. setkey | setkey key - Sets encryption/decryption key. Make sure input key is valid
     2. getkey - Returns encryption/decryption key
-    3. encrypt message | encrypt key message - Returns encrypted message. Input message shouldnt contain whitespaces
-    4. decrypt message | decrypt key message - Returns decrypted message. Input message should be a valid encryption
+    3. encrypt password | encrypt key password - Returns encrypted password. Input password shouldnt contain whitespaces
+    4. decrypt encrypted_password | decrypt key encrypted_password - Returns decrypted password. Input encrypted_password should be a valid encryption
     5. /getrandomkey - Returns random key to encrypt & decrypt
     6. resetkey - Resets key if any
     """
@@ -43,8 +43,12 @@ def setkey(update, context):
         context.user_data['KEY'] = Fernet.generate_key().decode('utf-8')
         reply = "Key has been set"
     elif len(message) == 2:
-        context.user_data['KEY'] = message[-1]
-        reply = "Key has been set"
+        try:
+            Fernet(message[-1].encode('utf-8'))
+            context.user_data['KEY'] = message[-1]
+            reply = "Key has been set"
+        except:
+            reply = "Invalid Key"
     else:
         reply = "Invalid Input"
     update.message.reply_text(reply)
